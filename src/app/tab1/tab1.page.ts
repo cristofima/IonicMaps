@@ -5,6 +5,9 @@ import "leaflet/dist/images/marker-shadow.png";
 import "leaflet/dist/images/marker-icon.png";
 import "leaflet/dist/images/marker-icon-2x.png";
 
+import { Platform } from '@ionic/angular';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -19,7 +22,10 @@ export class Tab1Page {
   private centerLongitude: number = 55.4765436;
   private homeMarker: L.Marker;
 
-  constructor() { }
+  constructor(
+    private platform: Platform,
+    private geolocation: Geolocation
+  ) { }
 
   ngOnInit() {
     this.initializeIcon();
@@ -30,7 +36,7 @@ export class Tab1Page {
       renderer: L.canvas()
     });
 
-    this.setCurrentPosition();
+    this.getCurrentPosition();
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap',
@@ -63,17 +69,29 @@ export class Tab1Page {
     }
   }
 
-  private setCurrentPosition() {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-        this.setHomeMarker(latitude, longitude, 'My location');
+  private getCurrentPosition() {
+    if (this.platform.is('mobileweb')) {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          this.addCurrentLocationMarket(position);
+        });
+      }
+    } else {
+      this.geolocation.getCurrentPosition().then((resp) => {
+        this.addCurrentLocationMarket(resp);
+      }).catch((error) => {
 
-        var latLon = L.latLng(latitude, longitude);
-        this.map.panTo(latLon);
       });
     }
+  }
+
+  private addCurrentLocationMarket(position: any) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    this.setHomeMarker(latitude, longitude, 'My location');
+
+    var latLon = L.latLng(latitude, longitude);
+    this.map.panTo(latLon);
   }
 
   private initializeIcon() {
