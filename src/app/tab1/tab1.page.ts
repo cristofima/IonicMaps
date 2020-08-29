@@ -12,6 +12,8 @@ import "leaflet/dist/images/marker-icon-2x.png";
 })
 export class Tab1Page {
 
+  private homeIcon: L.Icon;
+
   private map: L.Map;
   private centerLatitude: number = 25.3791924;
   private centerLongitude: number = 55.4765436;
@@ -20,6 +22,8 @@ export class Tab1Page {
   constructor() { }
 
   ngOnInit() {
+    this.initializeIcon();
+
     this.map = L.map('map', {
       center: [this.centerLatitude, this.centerLongitude],
       zoom: 15,
@@ -43,7 +47,7 @@ export class Tab1Page {
     const isFirstTime = !this.homeMarker;
 
     if (isFirstTime) {
-      this.homeMarker = L.marker(latLon);
+      this.homeMarker = L.marker(latLon, { icon: this.homeIcon });
     } else {
       this.homeMarker.setLatLng(latLon);
     }
@@ -70,5 +74,12 @@ export class Tab1Page {
         this.map.panTo(latLon);
       });
     }
+  }
+
+  private initializeIcon() {
+    this.homeIcon = L.icon({
+      iconUrl: 'assets/home.png',
+      iconSize: [32, 32]
+    });
   }
 }
