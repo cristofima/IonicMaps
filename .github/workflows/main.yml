@@ -18,4 +18,5 @@ jobs:
 
     - name: Build
       run: |
+        ionic init
         ionic cordova build android --prod
